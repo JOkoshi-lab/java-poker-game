@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 @SpringBootApplication
 @Controller
 public class Poker {
@@ -16,30 +17,26 @@ public class Poker {
         SpringApplication.run(Poker.class, args);
     }
 
-    /** 5枚の手札を保持するレコードクラス */
     record Hand(int c0, int c1, int c2, int c3, int c4) {
     }
 
-    /** 手札の履歴（フォームの下に表示される） */
     private List<Hand> history;
-    /** 山札（ページ内には表示されない） */
     private List<Integer> deck;
 
-    /** ゲームを最初から始めるための準備を行う */
     private void initGame() {
-        // 山札を初期化する
         deck = new ArrayList<>();
-        for (int i = 0; i < 52; i++) { // 0～51を山札にする
+        for (int i = 0; i < 52; i++) {
             deck.add(i);
         }
-        Collections.shuffle(deck); // シャッフルする
-        // 履歴を消す
+        Collections.shuffle(deck);
+
         history = new ArrayList<>();
-        // 山札から5枚引いて最初の手札をつくり履歴に登録する
-        int c[] = new int[5];
+
+        int[] c = new int[5];
         for (int i = 0; i < 5; i++) {
-            c[i] = deck.remove(0); // deckの先頭の要素を削除しc[i]に入れる
+            c[i] = deck.remove(0);
         }
+
         Hand hand = new Hand(c[0], c[1], c[2], c[3], c[4]);
         history.add(hand);
     }
@@ -49,43 +46,49 @@ public class Poker {
         if (deck == null) {
             initGame();
         }
-        Hand hand = history.get(0); // historyの先頭要素をhandに入れる（削除はしない）
+
+        Hand hand = history.get(0);
         model.addAttribute("history", history);
         model.addAttribute("hand", hand);
-        model.addAttribute("left", deck.size()); // 山札の残り枚数をleftに入れる
-        return "poker"; // ビューの名前
+        model.addAttribute("left", deck.size());
+        model.addAttribute(
+                "ranks",
+                List.of("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"));
+        model.addAttribute("suits", List.of("♠", "♥", "♦", "♣"));
+
+        return "poker";
     }
 
     @RequestMapping("/drawCard")
     String drawCard(@RequestParam(value = "select", required = false) List<String> selected) {
-        if (deck.size() < 5) { // 山札が5枚未満ならゲームを再開する
+        if (deck.size() < 5) {
             deck = null;
             return "redirect:/poker";
         }
-        System.out.println("selected=" + selected);
-        if (selected == null) {
-            // 何もしない
-        } else {
-            Hand hand = history.get(0); // 交換前の手札
-            int newhand[] = { hand.c0, hand.c1, hand.c2, hand.c3, hand.c4 }; // 配列にする
+
+        if (selected != null) {
+            Hand hand = history.get(0);
+            int[] newhand = { hand.c0, hand.c1, hand.c2, hand.c3, hand.c4 };
+
             for (String s : selected) {
                 int index = Integer.parseInt(s);
                 newhand[index] = deck.remove(0);
             }
+
             for (int i = 0; i < 5; i++) {
                 for (int j = i + 1; j < 5; j++) {
-
                     if ((newhand[i] % 13) > (newhand[j] % 13)) {
-
                         int temp = newhand[i];
                         newhand[i] = newhand[j];
                         newhand[j] = temp;
                     }
                 }
             }
+
             hand = new Hand(newhand[0], newhand[1], newhand[2], newhand[3], newhand[4]);
-            history.add(0, hand); // 先頭(0番目)に追加する．既存要素は後ろにずれる．
+            history.add(0, hand);
         }
+
         return "redirect:/poker";
     }
 }
