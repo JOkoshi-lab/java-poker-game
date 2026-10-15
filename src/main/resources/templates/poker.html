@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ひとりポーカー</title>
+</head>
+
+<body>
+    <h1>ひとりポーカー</h1>
+    <div style="background:#2a702a;">
+        <form action="/drawCard">
+            手札<br>
+            <table border="1">
+                <tr>
+                    <td><label for="check0"> <img th:src="'cards/' + ${hand.c0} + '.png'" width="100"></label></td>
+                    <td><label for="check1"> <img th:src="'cards/' + ${hand.c1} + '.png'" width="100"></label></td>
+                    <td><label for="check2"> <img th:src="'cards/' + ${hand.c2} + '.png'" width="100"></label></td>
+                    <td><label for="check3"> <img th:src="'cards/' + ${hand.c3} + '.png'" width="100"></label></td>
+                    <td><label for="check4"> <img th:src="'cards/' + ${hand.c4} + '.png'" width="100"></label></td>
+                </tr>
+                <tr align="center">
+                    <td><input type="checkbox" name="select" id="check0" value="0" /></td>
+                    <td><input type="checkbox" name="select" id="check1" value="1" /></td>
+                    <td><input type="checkbox" name="select" id="check2" value="2" /></td>
+                    <td><input type="checkbox" name="select" id="check3" value="3" /></td>
+                    <td><input type="checkbox" name="select" id="check4" value="4" /></td>
+                </tr>
+            </table>
+            <br>
+            <input th:if="${left >= 5}" type="submit" value="入れ替え" />
+            <input th:if="${left < 5}" type="submit" value="ゲームオーバー" />
+        </form>
+        <p>
+            山札の残り枚数：
+            <span th:text="${left}"></span>
+        </p>
+    </div>
+    <br>
+    <div>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>手札の履歴</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="hand: ${history}">
+                    <td>
+                        <img th:src="'cards/' + ${hand.c0} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c1} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c2} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c3} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c4} + '.png'" width="100">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
