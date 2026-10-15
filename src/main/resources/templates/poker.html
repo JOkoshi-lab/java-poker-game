@@ -3,176 +3,59 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ひとりポーカー</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 28px;
-            color: #ffffff;
-            font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
-            background: #0e4324;
-        }
-
-        .poker-table {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 28px;
-            border: 8px solid #6d4629;
-            border-radius: 24px;
-            background: #176236;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .hand {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .card-wrap {
-            text-align: center;
-        }
-
-        .card {
-            display: flex;
-            width: 100px;
-            height: 150px;
-            box-sizing: border-box;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px;
-            border: 1px solid #bbbbbb;
-            border-radius: 10px;
-            color: #111111;
-            font-family: Georgia, serif;
-            font-weight: bold;
-            background: #ffffff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .card.red {
-            color: #d71920;
-        }
-
-        .corner {
-            font-size: 24px;
-            line-height: 1;
-            text-align: left;
-        }
-
-        .suit {
-            font-size: 52px;
-            line-height: 1;
-            text-align: center;
-        }
-
-        .corner.bottom {
-            transform: rotate(180deg);
-        }
-
-        input[type="checkbox"] {
-            margin-top: 10px;
-            transform: scale(1.25);
-        }
-
-        input[type="submit"] {
-            padding: 10px 20px;
-            border: 0;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .history {
-            margin-top: 28px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .history-row {
-            margin: 14px 0;
-        }
-
-        .history-row .card {
-            width: 60px;
-            height: 90px;
-            padding: 5px;
-        }
-
-        .history-row .corner {
-            font-size: 15px;
-        }
-
-        .history-row .suit {
-            font-size: 30px;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="poker-table">
-        <h1>ひとりポーカー</h1>
-
+    <h1>ひとりポーカー</h1>
+    <div style="background:#2a702a;">
         <form action="/drawCard">
-            <p>交換したいカードを選択してください。</p>
-
-            <div class="hand">
-                <div class="card-wrap"
-                    th:each="card, stat : ${ {hand.c0, hand.c1, hand.c2, hand.c3, hand.c4} }">
-                    <label th:for="|check${stat.index}|">
-                        <span class="card"
-                            th:classappend="${(card / 13 == 1 || card / 13 == 2) ? ' red' : ''}">
-                            <span class="corner">
-                                <span th:text="${ranks[card % 13]}"></span><br>
-                                <span th:text="${suits[card / 13]}"></span>
-                            </span>
-                            <span class="suit" th:text="${suits[card / 13]}"></span>
-                            <span class="corner bottom">
-                                <span th:text="${ranks[card % 13]}"></span><br>
-                                <span th:text="${suits[card / 13]}"></span>
-                            </span>
-                        </span>
-                    </label>
-                    <input type="checkbox" name="select" th:id="|check${stat.index}|" th:value="${stat.index}">
-                </div>
-            </div>
-
-            <input th:if="${left >= 5}" type="submit" value="入れ替え">
-            <input th:if="${left < 5}" type="submit" value="ゲームオーバー">
+            手札<br>
+            <table border="1">
+                <tr>
+                    <td><label for="check0"> <img th:src="'cards/' + ${hand.c0} + '.png'" width="100"></label></td>
+                    <td><label for="check1"> <img th:src="'cards/' + ${hand.c1} + '.png'" width="100"></label></td>
+                    <td><label for="check2"> <img th:src="'cards/' + ${hand.c2} + '.png'" width="100"></label></td>
+                    <td><label for="check3"> <img th:src="'cards/' + ${hand.c3} + '.png'" width="100"></label></td>
+                    <td><label for="check4"> <img th:src="'cards/' + ${hand.c4} + '.png'" width="100"></label></td>
+                </tr>
+                <tr align="center">
+                    <td><input type="checkbox" name="select" id="check0" value="0" /></td>
+                    <td><input type="checkbox" name="select" id="check1" value="1" /></td>
+                    <td><input type="checkbox" name="select" id="check2" value="2" /></td>
+                    <td><input type="checkbox" name="select" id="check3" value="3" /></td>
+                    <td><input type="checkbox" name="select" id="check4" value="4" /></td>
+                </tr>
+            </table>
+            <br>
+            <input th:if="${left >= 5}" type="submit" value="入れ替え" />
+            <input th:if="${left < 5}" type="submit" value="ゲームオーバー" />
         </form>
-
         <p>
             山札の残り枚数：
             <span th:text="${left}"></span>
         </p>
-
-        <div class="history">
-            <h2>手札の履歴</h2>
-
-            <div class="history-row" th:each="oldHand : ${history}">
-                <div class="hand">
-                    <span class="card"
-                        th:each="card : ${ {oldHand.c0, oldHand.c1, oldHand.c2, oldHand.c3, oldHand.c4} }"
-                        th:classappend="${(card / 13 == 1 || card / 13 == 2) ? ' red' : ''}">
-                        <span class="corner">
-                            <span th:text="${ranks[card % 13]}"></span><br>
-                            <span th:text="${suits[card / 13]}"></span>
-                        </span>
-                        <span class="suit" th:text="${suits[card / 13]}"></span>
-                        <span class="corner bottom">
-                            <span th:text="${ranks[card % 13]}"></span><br>
-                            <span th:text="${suits[card / 13]}"></span>
-                        </span>
-                    </span>
-                </div>
-            </div>
-        </div>
+    </div>
+    <br>
+    <div>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>手札の履歴</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="hand: ${history}">
+                    <td>
+                        <img th:src="'cards/' + ${hand.c0} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c1} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c2} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c3} + '.png'" width="100">
+                        <img th:src="'cards/' + ${hand.c4} + '.png'" width="100">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </body>
 
